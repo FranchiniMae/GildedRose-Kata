@@ -1,5 +1,5 @@
 class Item {
-  constructor(name, sellIn, quality){
+  constructor (name, sellIn, quality) {
     this.name = name;
     this.sellIn = sellIn;
     this.quality = quality;
@@ -7,56 +7,85 @@ class Item {
 }
 
 class Shop {
-  constructor(items=[]){
+  constructor (items = []) {
     this.items = items;
   }
-  updateQuality() {
-    for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].name != 'Aged Brie' && this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-        if (this.items[i].quality > 0) {
-          if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-            this.items[i].quality = this.items[i].quality - 1;
-          }
-        }
-      } else {
-        if (this.items[i].quality < 50) {
-          this.items[i].quality = this.items[i].quality + 1;
-          if (this.items[i].name == 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].sellIn < 11) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1;
-              }
-            }
-            if (this.items[i].sellIn < 6) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1;
-              }
-            }
-          }
-        }
-      }
-      if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-        this.items[i].sellIn = this.items[i].sellIn - 1;
-      }
-      if (this.items[i].sellIn < 0) {
-        if (this.items[i].name != 'Aged Brie') {
-          if (this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].quality > 0) {
-              if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-                this.items[i].quality = this.items[i].quality - 1;
-              }
-            }
-          } else {
-            this.items[i].quality = this.items[i].quality - this.items[i].quality;
-          }
-        } else {
-          if (this.items[i].quality < 50) {
-            this.items[i].quality = this.items[i].quality + 1;
-          }
-        }
-      }
+
+  updateNormalItems (item) {
+    const MIN_ITEM_QUALITY = 0;
+
+    if (item.quality !== MIN_ITEM_QUALITY) {
+      item.sellIn >= 1 ? item.quality -= 1 : item.quality -= 2;
     }
+
+    item.sellIn -= 1;
+    return item;
+  }
+
+  updateQuality() {
+    this.items.forEach(item => {
+      if (SPECIAL_ITEMS[item.name]) {
+        SPECIAL_ITEMS[item.name](item);
+      } else {
+        this.updateNormalItems(item);
+      }
+    })
 
     return this.items;
   }
+}
+
+// TODO: Move util functions to a util directory
+
+const SPECIAL_ITEMS = {
+  'Aged Brie': (item) => updateAgedBrie(item),
+  'Sulfuras, Hand of Ragnaros': (item ) => updatedSulfuras(item),
+  'Backstage passes to a TAFKAL80ETC concert': (item) => updateBackstagePass(item),
+  'Conjured Mana Cake': (item) => updateConjured(item)
+}
+
+const updateAgedBrie = (item) => {
+    const MAX_ITEM_QUALITY = 50;
+
+    if (item.quality !== MAX_ITEM_QUALITY) {
+      item.sellIn >= 1 ? item.quality += 1 : item.quality += 2;
+    }
+
+    item.sellIn -= 1;
+    return item;
+}
+
+const updateSulfuras = (item) => item
+
+const updateBackstagePass = (item) => {
+    const UPPER_SELL_IN_LIMIT = 10;
+    const MID_SELL_IN_LIMIT = 5;
+    const MAX_ITEM_QUALITY = 50;
+
+
+    if (item.quality !== MAX_ITEM_QUALITY) {
+      if (item.sellIn > UPPER_SELL_IN_LIMIT) {
+        item.quality += 1;
+      } else if (item.sellIn <= UPPER_SELL_IN_LIMIT && item.sellIn > MID_SELL_IN_LIMIT) {
+        item.quality += 2;
+      } else if (item.sellIn <= MID_SELL_IN_LIMIT && item.sellIn > 0) {
+        item.quality += 3;
+      } else {
+        item.quality = 0;
+      }
+    }
+
+    item.sellIn -= 1;
+    return item;
+}
+
+const updateConjured = (item) => {
+  const MIN_ITEM_QUALITY = 0;
+
+  if (item.quality !== MIN_ITEM_QUALITY) {
+    item.sellIn >= 1 ? item.quality -= 2 : item.quality -= 4;
+  }
+
+  item.sellIn -= 1;
+  return item;
 }
