@@ -9,6 +9,12 @@ class Item {
 class Shop {
   constructor (items = []) {
     this.items = items;
+    this.specialItems = {
+      'Aged Brie': (item) => updateAgedBrie(item),
+      'Sulfuras, Hand of Ragnaros': (item ) => updatedSulfuras(item),
+      'Backstage passes to a TAFKAL80ETC concert': (item) => updateBackstagePass(item),
+      'Conjured Mana Cake': (item) => updateConjured(item)
+    }
   }
 
   updateNormalItems (item) {
@@ -24,8 +30,8 @@ class Shop {
 
   updateQuality() {
     this.items.forEach(item => {
-      if (SPECIAL_ITEMS[item.name]) {
-        SPECIAL_ITEMS[item.name](item);
+      if (this.specialItems[item.name]) {
+        this.specialItems[item.name](item);
       } else {
         this.updateNormalItems(item);
       }
@@ -36,13 +42,6 @@ class Shop {
 }
 
 // TODO: Move util functions to a util directory
-
-const SPECIAL_ITEMS = {
-  'Aged Brie': (item) => updateAgedBrie(item),
-  'Sulfuras, Hand of Ragnaros': (item ) => updatedSulfuras(item),
-  'Backstage passes to a TAFKAL80ETC concert': (item) => updateBackstagePass(item),
-  'Conjured Mana Cake': (item) => updateConjured(item)
-}
 
 const updateAgedBrie = (item) => {
     const MAX_ITEM_QUALITY = 50;
